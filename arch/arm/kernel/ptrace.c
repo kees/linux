@@ -908,6 +908,15 @@ asmlinkage int syscall_trace(int why, struct pt_regs *regs, int scno)
 {
 	unsigned long ip;
 
+	current_thread_info()->syscall = scno;
+
+	/*
+	 * Only check seccomp on entry. Do the secure computing check first;
+	 * failures should be fast.
+	 */
+	if (why == 0 && secure_computing(scno) == -1)
+		return -1;
+
 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
 		return scno;
 	if (!(current->ptrace & PT_PTRACED))
@@ -919,8 +928,6 @@ asmlinkage int syscall_trace(int why, struct pt_regs *regs, int scno)
 	 */
 	ip = regs->ARM_ip;
 	regs->ARM_ip = why;
-
-	current_thread_info()->syscall = scno;
 
 	/* the 0x80 provides a way for the tracing parent to distinguish
 	   between a syscall stop and SIGTRAP delivery */
