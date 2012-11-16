@@ -456,7 +456,8 @@ void audit_core_dumps(long signr);
 
 static inline void audit_seccomp(unsigned long syscall, long signr, int code)
 {
-	__audit_seccomp(syscall, signr, code);
+	if (unlikely(!audit_dummy_context()))
+		__audit_seccomp(syscall, signr, code);
 }
 
 static inline void audit_ptrace(struct task_struct *t)
