@@ -437,7 +437,7 @@ int __secure_computing_int(int this_syscall)
 #ifdef SECCOMP_DEBUG
 	dump_stack();
 #endif
-	audit_seccomp(this_syscall, exit_sig, ret);
+	__audit_seccomp(this_syscall, exit_sig, ret);
 	do_exit(exit_sig);
 skip:
 	audit_seccomp(this_syscall, exit_sig, ret);
